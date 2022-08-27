@@ -1,28 +1,28 @@
 package br.com.alura.forum.controller;
 
 
+import br.com.alura.forum.DTO.Atualizacaoform;
+import br.com.alura.forum.DTO.DetalhesdoTopicoDto;
 import br.com.alura.forum.DTO.TopicoDto;
 import br.com.alura.forum.DTO.TopicoForm;
-import br.com.alura.forum.model.Curso;
 import br.com.alura.forum.model.Topico;
 import br.com.alura.forum.repository.CursoRepository;
 import br.com.alura.forum.repository.TopicoRepository;
-import org.apache.catalina.connector.Response;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.net.URI;
-import java.util.Arrays;
 import java.util.List;
 
 //TODO METODO TEM O RESPONSE BODY
 @RestController
 @RequestMapping("/topicos")
+
+//SALVAR E EXCLUIR COLOCAR O TRANSACTIONAL
 public class TopicosController {
 
     //INJETANDO Dependencias
@@ -48,6 +48,8 @@ public class TopicosController {
     }
 
     @PostMapping
+
+    @Transactional
     //TENHO QUE PEGAR DO CORPO DA REQUISIÇÃO
     public ResponseEntity<TopicoDto> cadastrar(@RequestBody @Valid  TopicoForm form, UriComponentsBuilder uriBuilder)
     {
@@ -57,6 +59,29 @@ public class TopicosController {
         return ResponseEntity.created(uri).body(new TopicoDto(topico));
     }
 
+    @GetMapping("/{id}")
+    public DetalhesdoTopicoDto detalhar(@PathVariable  Long id)
+    {
+        Topico topico=topicoRepository.getOne(id);
+        return new DetalhesdoTopicoDto(topico);
+    }
 
+    @PutMapping("/{id}")
+    //COMITAR A TRANSAÇÃO
+    @Transactional
+    public ResponseEntity<TopicoDto>  atualizar(@PathVariable  Long id,@RequestBody @Valid Atualizacaoform form){
+        Topico topico=form.atualizar(id,topicoRepository);
+
+        return ResponseEntity.ok(new TopicoDto(topico));
+    }
+
+
+    @DeleteMapping("/{id}")
+    @Transactional
+    public ResponseEntity remover(@PathVariable  Long id){
+        topicoRepository.deleteById(id);
+
+        return ResponseEntity.ok().build();
+    }
 
 }

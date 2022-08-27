@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+//SÃO DADOS QUE SAI DA API PRO CLIENTE
 public class TopicoDto {
     private Long id;
     private String titulo;
